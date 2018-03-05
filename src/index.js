@@ -1,15 +1,63 @@
 module.exports = function count(string, pairs) {
-  if (string.length > 1) return;
   var n = getN(pairs);
-  var counter = n;
+  var counter = 0;
+  var stringLength = string.length;
 
-  if (string.length == 1) {
+  if (stringLength == 1) {
+      counter = 1;
       for (var i = 0, length = pairs.length; i < length; i++) {
-          counter *= (1 - (1 / pairs[i][0]));
+          counter *= (pairs[i][0] - 1);
+      }
+      counter = (string === '1') ? counter : n - counter;
+  }
+
+  if (stringLength == 2) {
+      var b = 1;
+      var previousObject = {};
+      var currentObject;
+
+      getNewObject();
+      var max = Object.keys(currentObject);
+      max = max[max.length - 1];
+
+      var arr = new Array(stringLength);
+      for (i = 0; i < arr.length; i++) {
+          arr[i] = (currentObject[i + 1]) ? 0 : 1;
+      }
+
+
+      for (i += 1; i <= n + stringLength; i++) {
+          if (string == arr.join('')) counter++;
+          arr = arr.slice(1);
+          var next = (currentObject[i]) ? 0 : 1;
+          arr.push(next);
+          if (i == max) {
+              getNewObject();
+              max = Object.keys(currentObject);
+              max = max[max.length - 1];
+          }
+      }
+
+      for (i = 0; i < pairs.length; i++) {
+          var integer = pairs[i][0];
+          var power = pairs[i][1];
+          for (b = 0; b < power - 1; b++) {
+              counter = (counter * integer) % 1000000007;
+          }
       }
   }
 
-  counter = (string === '1') ? Math.floor(counter) : n - Math.floor(counter);
+  function getNewObject() {
+      currentObject = previousObject;
+      previousObject = {};
+      var currentLimit = b + 50000;
+      for (b; b < currentLimit; b++) {
+          for (var i = 0, length = pairs.length; i < length; i++) {
+              currentObject[pairs[i][0] * b] = true;
+              previousObject[pairs[i][0] * b] = true;
+          }
+      }
+  }
 
   function getN(pairs) {
       var n = pairs[0][0];
