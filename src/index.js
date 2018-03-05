@@ -1,4 +1,29 @@
 module.exports = function count(string, pairs) {
+  if (string.length > 1) return;
+  var n = getN(pairs);
+  var counter = n;
+
+  if (string.length == 1) {
+      for (var i = 0, length = pairs.length; i < length; i++) {
+          counter *= (1 - (1 / pairs[i][0]));
+      }
+  }
+
+  counter = (string === '1') ? Math.floor(counter) : n - Math.floor(counter);
+
+  function getN(pairs) {
+      var n = pairs[0][0];
+      for (var i = 1, length = pairs.length ; i < length; i++) {
+          n *= pairs[i][0];
+      }
+      return n;
+  }
+
+  return counter;
+};
+
+/*
+module.exports = function count(string, pairs) {
     var mask = string.split('');
     var n = getN(pairs);
     var counter = 0;
@@ -40,6 +65,7 @@ module.exports = function count(string, pairs) {
 
     return counter % 1000000007;
 };
+*/
 
 /*
 module.exports = function count(string, pairs) {
