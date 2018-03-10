@@ -1,7 +1,8 @@
 module.exports = function count(string, pairs) {
+  var MOD = 1000000007;
+  var stringLength = string.length;
   var n = getN(pairs);
   var counter = 0;
-  var stringLength = string.length;
 
   if (stringLength == 1) {
       counter = 1;
@@ -11,51 +12,57 @@ module.exports = function count(string, pairs) {
       counter = (string === '1') ? counter : n - counter;
   }
 
-  if (stringLength == 2) {
-      var b = 1;
+  if (stringLength == 2 || stringLength == 4) {
       var previousObject = {};
       var currentObject;
-
+      var currentLimit = 0;
+      var currentValues = getPrimes(pairs);
       getNewObject();
-      var max = Object.keys(currentObject);
-      max = max[max.length - 1];
 
-      var arr = new Array(stringLength);
-      for (i = 0; i < arr.length; i++) {
-          arr[i] = (currentObject[i + 1]) ? 0 : 1;
+      function getPrimes(pairs) {
+          var arr = [];
+          for (var i = 0, length = pairs.length; i < length; i++) {
+              arr.push(pairs[i][0]);
+          }
+          return arr;
       }
 
+      function getNewObject() {
+          currentObject = previousObject;
+          previousObject = {};
+          currentLimit += 100;
+          for (var i = 0, length = pairs.length; i < length; i++) {
+              var prime = pairs[i][0];
+              for (var n = currentValues[i]; n < currentLimit + 10; n += prime) {
+                  currentObject[n] = true;
+                  previousObject[n] = true;
+              }
+              currentValues[i] = n;
+          }
+      }
 
-      for (i += 1; i <= n + stringLength; i++) {
-          if (string == arr.join('')) counter++;
-          arr = arr.slice(1);
+      var currentString = new Array(stringLength);
+      for (i = 0; i < stringLength; i++) {
+          currentString[i] = (currentObject[i + 1]) ? 0 : 1;
+      }
+
+      n += stringLength + 1;
+
+      for (i += 1; i < n; i++) {
+          if (string == currentString.join('')) counter++;
+          currentString = currentString.slice(1);
           var next = (currentObject[i]) ? 0 : 1;
-          arr.push(next);
-          if (i == max) {
+          currentString.push(next);
+          if (i == currentLimit) {
               getNewObject();
-              max = Object.keys(currentObject);
-              max = max[max.length - 1];
           }
       }
 
       for (i = 0; i < pairs.length; i++) {
-          var integer = pairs[i][0];
-          var power = pairs[i][1];
-          for (b = 0; b < power - 1; b++) {
-              counter = (counter * integer) % 1000000007;
-          }
-      }
-  }
-
-  function getNewObject() {
-      currentObject = previousObject;
-      previousObject = {};
-      var currentLimit = b + 50000;
-      for (b; b < currentLimit; b++) {
-          for (var i = 0, length = pairs.length; i < length; i++) {
-              currentObject[pairs[i][0] * b] = true;
-              previousObject[pairs[i][0] * b] = true;
-          }
+          var base = pairs[i][0];
+          var power = pairs[i][1] - 1;
+          var currentExponetiatedNumber = pow(base, power);
+          counter = multiply(counter, currentExponetiatedNumber);
       }
   }
 
@@ -65,6 +72,34 @@ module.exports = function count(string, pairs) {
           n *= pairs[i][0];
       }
       return n;
+  }
+
+  function pow(base, power) {
+      var result = 1;
+
+      while (power > 0) {
+          if (power & 1 === 1) {
+              result = multiply(result, base) % MOD;
+          }
+
+          power = ~~(power / 2);
+          base = multiply(base, base) % MOD;
+      }
+
+      return result;
+  }
+
+  function multiply(a, b) {
+      var result = 0;
+      while (b > 0) {
+          if (b & 1 === 1) {
+              b--;
+              result = (result + a) % MOD;
+          }
+          a = (a + a) % MOD;
+          b = ~~(b / 2);
+      }
+      return result;
   }
 
   return counter;
