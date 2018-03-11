@@ -1,4 +1,117 @@
 module.exports = function count(string, pairs) {
+  var STRING_LENGTH = string.length;
+  var MOD = 1000000007;
+  var n = getN(pairs);
+  var counter = 0;
+
+  if (STRING_LENGTH == 1) {
+      counter = 1;
+      for (var i = 0, length = pairs.length; i < length; i++) {
+          counter *= (pairs[i][0] - 1);
+      }
+      counter = (string === '1') ? counter : n - counter;
+  }
+
+  if (STRING_LENGTH == 2 || STRING_LENGTH == 4) {
+      n += STRING_LENGTH;
+      var arrayLength = 100 + STRING_LENGTH;
+      var turn = false;
+      var promises = [];
+
+      for (let i = 1; i <= n; i += 100) {
+          arrayLength = (i + arrayLength <= n) ? arrayLength : n - i;
+          if (turn) {
+              promises.push(new Promise(function() {
+                  findMatches(i, arrayLength);
+              }));
+              turn = false;
+          } else {
+              findMatches(i, arrayLength);
+              turn = true;
+          }
+      }
+
+      Promise.all(promises);
+  }
+
+  for (i = 0; i < pairs.length; i++) {
+      var base = pairs[i][0];
+      var power = pairs[i][1] - 1;
+      var currentExponetiatedNumber = pow(base, power);
+      counter = multiply(counter, currentExponetiatedNumber);
+  }
+
+  return counter;
+
+  function getN(pairs) {
+      var n = pairs[0][0];
+      for (var i = 1, length = pairs.length ; i < length; i++) {
+          n *= pairs[i][0];
+      }
+      return n;
+  }
+
+  function findMatches(i, arrayLength) {
+      var currentString = new Array(arrayLength + 1).join('1').split('');
+      for (var p = 0, length = pairs.length; p < length; p++) {
+          var prime = pairs[p][0],
+              currentNumber = i,
+              position = 0,
+              isPositionFound = false;
+          while (position <= arrayLength) {
+              if (!isPositionFound) {
+                  if (currentNumber % prime == 0) {
+                      isPositionFound = true;
+                      continue;
+                  }
+                  currentNumber++;
+                  position++;
+                  continue;
+              }
+              currentString[position] = 0;
+              position += prime;
+          }
+      }
+      currentString = currentString.join('');
+      var start = -1;
+      while ((start = currentString.indexOf(string, start + 1)) != -1) {
+          if (start === 0 && i !== 1) continue;
+          counter++;
+      }
+  }
+
+  function pow(base, power) {
+      var result = 1;
+
+      while (power > 0) {
+          if (power & 1 === 1) {
+              result = multiply(result, base) % MOD;
+          }
+
+          power = ~~(power / 2);
+          base = multiply(base, base) % MOD;
+      }
+
+      return result;
+  }
+
+  function multiply(a, b) {
+      var result = 0;
+
+      while (b > 0) {
+          if (b & 1 === 1) {
+              b--;
+              result = (result + a) % MOD;
+          }
+          a = (a + a) % MOD;
+          b = ~~(b / 2);
+      }
+      return result;
+  }
+};
+
+/*
+module.exports = function count(string, pairs) {
   var MOD = 1000000007;
   var stringLength = string.length;
   var n = getN(pairs);
@@ -104,6 +217,7 @@ module.exports = function count(string, pairs) {
 
   return counter;
 };
+*/
 
 /*
 module.exports = function count(string, pairs) {
