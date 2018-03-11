@@ -1,6 +1,6 @@
 module.exports = function count(string, pairs) {
   var STRING_LENGTH = string.length;
-  var MOD = 1000000007;
+  var MODULO = 1000000007;
   var n = getN(pairs);
   var counter = 0;
 
@@ -85,11 +85,11 @@ module.exports = function count(string, pairs) {
 
       while (power > 0) {
           if (power & 1 === 1) {
-              result = multiply(result, base) % MOD;
+              result = multiply(result, base) % MODULO;
           }
 
           power = ~~(power / 2);
-          base = multiply(base, base) % MOD;
+          base = multiply(base, base) % MODULO;
       }
 
       return result;
@@ -101,9 +101,9 @@ module.exports = function count(string, pairs) {
       while (b > 0) {
           if (b & 1 === 1) {
               b--;
-              result = (result + a) % MOD;
+              result = (result + a) % MODULO;
           }
-          a = (a + a) % MOD;
+          a = (a + a) % MODULO;
           b = ~~(b / 2);
       }
       return result;
